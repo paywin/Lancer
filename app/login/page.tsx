@@ -1,6 +1,9 @@
 import { signIn } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import { autenticacaoObrigatoria } from "@/lib/access";
 
 export default async function LoginPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
+  if (!autenticacaoObrigatoria()) redirect("/");
   const { error } = await searchParams;
   return (
     <div className="mx-auto mt-20 max-w-sm text-center">

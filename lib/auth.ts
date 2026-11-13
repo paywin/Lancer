@@ -1,5 +1,6 @@
 import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
+import { autenticacaoObrigatoria, USUARIO_PUBLICO } from "./access";
 
 const permitidos = () =>
   (process.env.ALLOWED_EMAILS ?? "")
@@ -21,6 +22,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
 /** Para as rotas de API: retorna o e-mail do usuário ou lança 401. */
 export async function exigirUsuario(): Promise<string> {
+  if (!autenticacaoObrigatoria()) return USUARIO_PUBLICO;
   const session = await auth();
   const email = session?.user?.email;
   if (!emailPermitido(email)) throw new HttpError(401, "Não autorizado. Faça login.");
@@ -31,4 +33,8 @@ export class HttpError extends Error {
   constructor(public status: number, message: string) {
     super(message);
   }
+}
+
+export async function sessaoAtual() {
+  return autenticacaoObrigatoria() ? auth() : null;
 }

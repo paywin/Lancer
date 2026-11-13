@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { auth, signOut } from "@/lib/auth";
+import { sessaoAtual, signOut } from "@/lib/auth";
 import { RecentList } from "@/components/RecentList";
 
 const opcoes = [
@@ -9,7 +9,7 @@ const opcoes = [
 ];
 
 export default async function Home() {
-  const session = await auth();
+  const session = await sessaoAtual();
   return (
     <div className="space-y-6">
       <header className="flex items-center justify-between">
@@ -17,14 +17,14 @@ export default async function Home() {
           <h1 className="text-xl font-semibold">LançaNota</h1>
           <p className="text-sm text-muted">Olá, {session?.user?.name?.split(" ")[0] ?? "bem-vindo"}</p>
         </div>
-        <form
+        {session && <form
           action={async () => {
             "use server";
             await signOut({ redirectTo: "/login" });
           }}
         >
           <button className="text-sm text-muted underline">Sair</button>
-        </form>
+        </form>}
       </header>
 
       <section className="grid gap-3 sm:grid-cols-3">

@@ -1,10 +1,14 @@
 # LançaNota
 
-Aplicativo para transformar notas de compra em linhas de produtos no Google Sheets. Login com Google e lista de e-mails autorizados; entrada por XML de NF-e/NFC-e, QR Code ou fotos; revisão obrigatória antes do lançamento.
+Aplicativo para transformar notas de compra em linhas de produtos no Google Sheets. Entrada por XML de NF-e/NFC-e, QR Code ou fotos; revisão obrigatória antes do lançamento.
+
+**Acesso livre por enquanto:** o app abre direto, sem conta Google e sem verificação. `AUTH_REQUIRED=false` é o padrão, inclusive quando a variável não existe. As páginas e APIs ficam públicas; quem tiver o endereço pode consultar o histórico, processar notas e lançar na planilha. O controle identifica esses lançamentos como `acesso-livre` e a fila continua separada por navegador. As credenciais da conta de serviço do Sheets e da OpenAI continuam necessárias no servidor.
+
+Para reativar a proteção, configure `AUTH_REQUIRED=true`, as credenciais OAuth/Auth.js e `ALLOWED_EMAILS`, e reinicie/republique o aplicativo.
 
 ## Fluxo
 
-1. Entre com uma conta autorizada.
+1. Abra o aplicativo (sem login no modo de acesso livre).
 2. Capture um QR, selecione XMLs ou adicione até seis fotos **da mesma nota**.
 3. Adicione à fila e continue capturando. Uma extração é executada por vez; uma falha não bloqueia as seguintes.
 4. Abra **Fila → Revisar nota**, confira os valores e corrija o que for necessário.
@@ -70,8 +74,8 @@ npm run build
 ```
 
 1. No Google Cloud, ative a **Google Sheets API**.
-2. Configure um cliente OAuth Google com callback `http://localhost:3000/api/auth/callback/google` e o equivalente HTTPS do endereço publicado.
-3. Preencha `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, `AUTH_SECRET` e `ALLOWED_EMAILS` (e-mails separados por vírgulas).
+2. Somente se ativar `AUTH_REQUIRED=true`: configure um cliente OAuth Google com callback `http://localhost:3000/api/auth/callback/google` e o equivalente HTTPS do endereço publicado.
+3. Somente no modo protegido, preencha `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, `AUTH_SECRET` e `ALLOWED_EMAILS` (e-mails separados por vírgulas).
 4. Crie/configure uma conta de serviço e compartilhe **apenas a planilha de destino** com seu e-mail como Editor. Preencha `GOOGLE_SERVICE_ACCOUNT_EMAIL` e `GOOGLE_PRIVATE_KEY`.
 5. Preencha `SPREADSHEET_ID`, `SHEET_NAME` e `CONTROL_SHEET_NAME`. Crie as duas abas com os cabeçalhos acima.
 6. Configure `OPENAI_API_KEY` e, opcionalmente, `OPENAI_MODEL` para leitura por foto e fallback de QR. A leitura de XML não depende da IA.
