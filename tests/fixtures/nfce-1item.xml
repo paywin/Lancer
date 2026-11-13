@@ -1,0 +1,8 @@
+<NFe xmlns="http://www.portalfiscal.inf.br/nfe">
+  <infNFe Id="NFe41261198765432000110650020000098761000098765" versao="4.00">
+    <ide><mod>65</mod><nNF>9876</nNF><dhEmi>2026-01-03T09:00:00-03:00</dhEmi></ide>
+    <emit><CNPJ>98765432000110</CNPJ><xNome>MERCADO DO BAIRRO</xNome></emit>
+    <det nItem="1"><prod><xProd>BANANA PRATA</xProd><uCom>KG</uCom><qCom>1.2350</qCom><vUnCom>5.99</vUnCom><vProd>7.40</vProd></prod></det>
+    <total><ICMSTot><vNF>7.40</vNF></ICMSTot></total>
+  </infNFe>
+</NFe>
