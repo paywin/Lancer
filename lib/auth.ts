@@ -1,21 +1,16 @@
 import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
-import { autenticacaoObrigatoria, USUARIO_PUBLICO } from "./access";
+import { autenticacaoObrigatoria, DURACAO_SESSAO, USUARIO_PUBLICO } from "./access";
 
-const permitidos = () =>
-  (process.env.ALLOWED_EMAILS ?? "")
-    .split(",")
-    .map((e) => e.trim().toLowerCase())
-    .filter(Boolean);
-
-export const emailPermitido = (email?: string | null) => !!email && permitidos().includes(email.toLowerCase());
+export const emailPermitido = (email?: string | null) => !!email?.trim();
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [Google],
   pages: { signIn: "/login", error: "/login" },
+  // Encrypted JWT in Auth.js's persistent HttpOnly cookie, never localStorage.
+  session: { strategy: "jwt", maxAge: DURACAO_SESSAO },
   callbacks: {
-    // só e-mails da lista ALLOWED_EMAILS conseguem entrar
-    signIn: ({ user }) => emailPermitido(user.email),
+    signIn: ({ user, account, profile }) => account?.provider === "google" && profile?.email_verified === true && emailPermitido(user.email),
     authorized: ({ auth }) => emailPermitido(auth?.user?.email),
   },
 });

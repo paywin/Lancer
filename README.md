@@ -2,13 +2,17 @@
 
 Aplicativo para transformar notas de compra em linhas de produtos no Google Sheets. Entrada por XML de NF-e/NFC-e, QR Code ou fotos; revisão obrigatória antes do lançamento.
 
-**Acesso livre por enquanto:** o app abre direto, sem conta Google e sem verificação. `AUTH_REQUIRED=false` é o padrão, inclusive quando a variável não existe. As páginas e APIs ficam públicas; quem tiver o endereço pode consultar o histórico, processar notas e lançar na planilha. O controle identifica esses lançamentos como `acesso-livre` e a fila continua separada por navegador. As credenciais da conta de serviço do Sheets e da OpenAI continuam necessárias no servidor.
+**Login com qualquer conta Google:** a autenticação é obrigatória por padrão. Não há lista de e-mails pré-autorizados: qualquer identidade Google com e-mail verificado pode usar o app e a planilha compartilhada de destino. O controle registra o e-mail de quem lançou cada nota. As credenciais da conta de serviço do Sheets e da OpenAI ficam apenas no servidor.
 
-Para reativar a proteção, configure `AUTH_REQUIRED=true`, as credenciais OAuth/Auth.js e `ALLOWED_EMAILS`, e reinicie/republique o aplicativo.
+Configure `AUTH_REQUIRED=true` (ou omita a variável). Remova `AUTH_REQUIRED=false` de instalações antigas e mantenha `AUTH_SECRET` estável entre reinicializações e deploys. `ALLOWED_EMAILS` não é mais utilizado. O modo sem login só fica ativo se `AUTH_REQUIRED=false` for escolhido explicitamente para desenvolvimento local.
+
+A sessão é mantida por cookie persistente, criptografado e HttpOnly, com duração de até **90 dias**, renovada pelo Auth.js nos acessos que atualizam a sessão. Fechar e reabrir o navegador não exige novo login enquanto o cookie for válido. Sair da conta no app, limpar cookies, usar janela anônima/outro navegador, expirar a sessão ou trocar `AUTH_SECRET` exige nova entrada. A tela de login redireciona para a página inicial quando a sessão ainda é válida.
+
+No Google Auth Platform, configure o público do cliente como **Externo**, com os escopos básicos `openid`, `email` e `profile`. O login não solicita acesso às planilhas pessoais do usuário: a gravação usa a conta de serviço configurada no servidor. A senha da conta Google não é usada no código nem no arquivo de configuração.
 
 ## Fluxo
 
-1. Abra o aplicativo (sem login no modo de acesso livre).
+1. Entre com sua conta Google; nas próximas visitas, a sessão salva permite abrir diretamente.
 2. Capture um QR, selecione XMLs ou adicione até seis fotos **da mesma nota**.
 3. Adicione à fila e continue capturando. Uma extração é executada por vez; uma falha não bloqueia as seguintes.
 4. Abra **Fila → Revisar nota**, confira os valores e corrija o que for necessário.
@@ -74,8 +78,8 @@ npm run build
 ```
 
 1. No Google Cloud, ative a **Google Sheets API**.
-2. Somente se ativar `AUTH_REQUIRED=true`: configure um cliente OAuth Google com callback `http://localhost:3000/api/auth/callback/google` e o equivalente HTTPS do endereço publicado.
-3. Somente no modo protegido, preencha `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, `AUTH_SECRET` e `ALLOWED_EMAILS` (e-mails separados por vírgulas).
+2. Configure um cliente OAuth Google para aplicativo Web com público Externo e callback `http://localhost:3000/api/auth/callback/google`, além do equivalente HTTPS do endereço publicado.
+3. Preencha `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET` e `AUTH_SECRET`. Use `AUTH_REQUIRED=true`; não existe mais lista de e-mails autorizados.
 4. Crie/configure uma conta de serviço e compartilhe **apenas a planilha de destino** com seu e-mail como Editor. Preencha `GOOGLE_SERVICE_ACCOUNT_EMAIL` e `GOOGLE_PRIVATE_KEY`.
 5. Preencha `SPREADSHEET_ID`, `SHEET_NAME` e `CONTROL_SHEET_NAME`. Crie as duas abas com os cabeçalhos acima.
 6. Configure `OPENAI_API_KEY` e, opcionalmente, `OPENAI_MODEL` para leitura por foto e fallback de QR. A leitura de XML não depende da IA.
